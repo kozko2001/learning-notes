@@ -1,3 +1,4 @@
+
 # Terraform learning notes
 
 This information is baded on the books I bought... but not completely read :P
@@ -73,6 +74,31 @@ resource  "aws_instance" "web" {
 ```
 * `lookup`: searches a key in a map
 
+```
+variable "aws_amis" {
+  default = {
+    eu-west-1 = "ami-674cbc1e"
+    us-east-1 = "ami-1d4e7a66"
+    us-west-1 = "ami-969ab1f6"
+    us-west-2 = "ami-8803e0f0"
+  }
+}
+
+variable "aws_region" {
+  description = "AWS region to launch servers."
+  default     = "us-west-2"
+}
+
+resource "aws_instance" "web" {
+    ami = "${lookup(var.aws_amis, var.aws_region)}"
+}
+```
+
+Once you have variables, you can use environment variables to fill the variables or `-var` arguments in terraform
+
+```
+terraform apply -var 'key_name=terraform' -var 'public_key_path=/Users/jordi/.ssh/terraform.pub'
+```
 ## Data
 
 We not always want to create new things, sometimes we need to query the platform (aws) for some data
@@ -147,3 +173,9 @@ resource "aws_instance" "web" {
 * `terraform graph | dot -Tpng > graph.png`: creates a `graph.png` image with the dependency graph of terraform
 
 * `terraform console`: opens a REPL console
+
+
+## Resources
+
+- Example two tier aws https://github.com/terraform-providers/terraform-provider-aws
+
