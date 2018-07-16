@@ -1,0 +1,19 @@
+* Org Mode
+
+Tips to remember how to use org-mode :)
+
+**** Insert SRC blocks with <s and <tab>
+
+**** Add Link to another file C-c l 
+
+**** Follow a link C-c C-o
+
+**** Add a new headline M-Ret M-Ret
+
+**** Undo tree -> Activate undo tree mode using M-x and then use undo-tree-visualize
+
+**** Move elements around: In visual mode -> M-(jklh) or M-(Left, Right, Up, Down)
+**** Show toggles: , T
+***** show images: , T i
+
+

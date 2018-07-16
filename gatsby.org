@@ -1,0 +1,215 @@
+* Gatsby JS
+  Generator of static pages using react and graphQL https://github.com/gatsbyjs/gatsby
+
+  **This my own notes after doing the gatsby tutorial... not really much new information ** 
+** Starting
+
+   1. Install gatsbycli tool
+      #+BEGIN_SRC shell
+        npm install -g gatsby
+      #+END_SRC
+   2. Start a project by:
+      #+BEGIN_SRC 
+        gatsby new site-name [git url of another starter kit]
+      #+END_SRC
+   3. Start a watcher that have hot-reload for changes
+      #+BEGIN_SRC 
+        gatsby develop 
+      #+END_SRC
+
+** How it works
+   
+  There are 3 important files generated for us:
+
+  - gatsy-config.js
+  - template/index.js
+  - pages/index.js
+
+*** gatsby-config.js [[https://www.gatsbyjs.org/docs/gatsby-config/][gatsby-config documentation]]
+    
+    The gatsby-config is used for add some metadata to the whole site, this data
+    will be added to the graphql and will be available to the whole application.
+
+    Also, gatsby-config is used to define which gatsby plugins have to be loaded, and 
+    the configuration of this plugins.
+
+*** pages/index.js
+
+    This is the / page, but any js file in the pages/ folder will be a new page inside the site.
+    Generally you can use any component from react, but there is a thing, when doing links to other 
+    pages of the static-site, you have to use the Link component of gatsby like the following snippet:
+
+    #+BEGIN_SRC js
+          <Link to="/page-2/">Go to page 2</Link>
+    #+END_SRC
+
+    
+*** template/index.js
+    
+    A component that sorrounds all the pages, here we are going to set the container width,
+    style etc...
+
+    We will see that pages that are generated programatically (they are no a js file in the
+    pages folder) can use different templates.
+
+** GraphQL
+
+   What it is? Checkout Wikipedia but basically is a way of requesting data to a service, but with 
+   schema and also allow you to make only one request and get multiple resources back even nested ones.
+
+   http://graphql.org/learn/
+
+   Gatsby allow you to make queries to graphQL data that he provides, this GraphQL data can be 
+   expanded using plugins (like for example fill the graphQL with the markdown data(
+
+   Also inside the gatsby-config.js file we can add more information to this graphql...
+
+   When develop, we can go to the grapiQL console and ask for site.siteMetadata, and this 
+   will return whatever object you added inside the gatse-config.js `siteMetadata`
+
+   #+BEGIN_SRC 
+    {
+      site {
+        siteMetadata {
+          title
+        }
+      }
+    }
+   #+END_SRC
+
+   Now... how we can use this graphQL data inside our pages??
+
+   #+BEGIN_SRC js
+     import React from "react";
+     import Link from "gatsby-link";
+
+     const IndexPage = ( data ) => {
+         console.log(data);
+         return (
+                 <div>
+                 <h1>Hi people</h1>
+                 {data.site.siteMetadata.title}
+                 <p>Welcome to your new Gatsby site.</p>
+                 <p>Now go build something great.</p>
+                 <Link to="/page-2/">Go to page 2</Link>
+                 </div>
+         );
+     };
+
+     export default IndexPage;
+
+     export const query = graphql`
+       query AboutQuery {
+         site {
+           siteMetadata {
+             title
+           }
+         }
+       }
+     `;
+   #+END_SRC
+
+   what is going on?
+
+   1. we add this `graphql` thing at the bottom of the page.js... why? how it works? no idea... the 
+      gatsby documentation have some kind of explanation I don't really understand
+
+   2. Each page component receive an object with some specific key-values, and there is one `data` 
+      that contains the query results
+
+   3. Just use this data, to print it to the console or use it in the react component :D
+
+** Markdown
+
+   With the components and pages javascript we can create any static webpage that we want... but 
+   some times for adding more content is better to just have data, and create this pages "dynamically"
+
+   How? Gatsby allow you to create new pages using a programatic API to create like new pages, the way
+   it works is by using GraphQL and gatsby-node.js file.
+
+*** Markdown GraphQL
+    
+    We can add a new two plugins to our gatsby-config.js 
+
+**** gatsby-source-filesystem
+     adds the content of files in the folder into the GraphQL:
+
+     #+BEGIN_SRC javascript
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `src`,
+        path: `${__dirname}/src/`
+      }
+    }
+     
+     #+END_SRC
+
+     once added... do a `yarn develop` and open the GraphQL console `http://localhost:8000/___graphql`
+
+     do the query for allFile like this
+
+     #+BEGIN_SRC 
+{
+  allFile {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+     #+END_SRC
+
+     And voila! on the graphQL we have all the files
+**** gatsby-transformer-remark
+    
+     Reads the content of markdowns and provides it to the GraphQL
+
+     add to the gatsby-config.js
+    
+     #+BEGIN_SRC js
+       plugins: [ ...,
+                  "gatsby-transformer-remark"
+                ]
+     #+END_SRC
+
+     create some markdown page inside your src/ folder... like the following
+
+     #+BEGIN_SRC 
+     ---
+     title: Influence....
+     date: "2018-01-21"
+     ---
+
+     # Hello!!
+     #+END_SRC
+
+     This markdown have some metadata at the begining of the file with `---` marks, this is named
+     the frontmatter and you can use it for bringing metadata from the md files
+
+     Now, let's check how looks our graphql :)
+    
+     #+BEGIN_SRC 
+     {
+       allMarkdownRemark {
+         edges {
+           node {
+             frontmatter {
+               title
+               date
+               _PARENT
+               parent
+             },
+             html
+           }
+         }
+       }
+     }
+     #+END_SRC
+
+     Wow! we got our HTML inside our graphQL, but... right now it's not really useful...
+
+     Let's see how to create build time pages :D
+     
+*** Creating dynamic pages!

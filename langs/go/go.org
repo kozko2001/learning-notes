@@ -1,0 +1,38 @@
+
+* Go mode in emacs
+
+  [[https://github.com/syl20bnr/spacemacs/tree/master/layers/%252Blang/go][Go Layer in SpaceEmacs]]
+
+#+BEGIN_SRC shell
+go get -u -v github.com/nsf/gocode
+go get -u -v github.com/rogpeppe/godef
+go get -u -v golang.org/x/tools/cmd/guru
+go get -u -v golang.org/x/tools/cmd/gorename
+go get -u -v golang.org/x/tools/cmd/goimports
+
+
+go get -u -v github.com/alecthomas/gometalinter
+gometalinter --install --update
+
+go get -u golang.org/x/tools/cmd/guru
+#+END_SRC
+
+#+RESULTS:
+
+
+Add to your layers (Spc + f + e + d) 
+
+
+(go :variables go-tab-width 4)
+
+
+#+begin_src go :imports '("fmt" "time")
+  fmt.Println("Current Time:", time.Now())
+#+end_src
+
+#+RESULTS:
+: Current Time: 2017-11-01 16:08:23.521874 +0100 CET m=+0.000362183
+
+
+
+** 

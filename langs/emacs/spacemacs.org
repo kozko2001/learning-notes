@@ -1,0 +1,36 @@
+* SPACEEMACSu
+** TIPS
+*** FROMu https://www.youtube.com/watch?v=HKF41ivkBb0 (nice video of 1 hour with a lot to learn)
+**** Help:
+     - SPC-h d: (Help describe)
+       - f: Describe function
+       - v: Describe variable
+       - m: Describe current mode
+       - k: Describe a key stroke
+     - SPC-h SPC: Spacemacs help
+**** SPC-/: Search using ag on all the project
+**** SPC-v: Start the expand region (v to expand it more, V to contract)
+**** SPC-s s: opens snoop that allow to better search inside the buffer
+**** SPC-g s: Magit status :D
+**** SPC-a r -> Ranger: better dired so hook to the dired 
+**** SPC-b d -> Delete buffer
+**** SPC-b TAB
+**** SPC-b n/p: previous/next buffer
+**** SPC-c l: Comment/uncomment region
+**** SPC-C c: org capture
+**** SPC-f r: shor recent files
+**** SPC-f t: NeoTree
+**** SPC-e v: Check the flycheck configuration (if you see something stange on error for some language)
+**** SPC-h SPC: Help for spacemacs really handful
+**** [ or ]: [ beans previous and ] means next (unimpared https://github.com/syl20bnr/spacemacs/blob/master/doc/DOCUMENTATION.org#unimpaired-bindings)
+***** b: next/prev buffer
+***** w: next/prev windwos
+***** ( or ): next/prev parent
+***** l: next/prev error
+**** SPC-?: See keybinding in the current mode (SUPER USEFUL WHEN NOT KNOWING HOW TO DO A THING!!!)
+** Vim movements that I learnt
+**** C-e, C-y: Scroll without moving the cursor
+**** C-i, C-o: Put cursor on last/prev edit (even in another file)
+**** z z: put the current line in the center
+**** z t: put the current line @ top
+**** z b: put the current line @ bottom

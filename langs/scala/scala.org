@@ -1,0 +1,408 @@
+* SCALA
+** References
+   - https://twitter.github.io/scala_school/
+   -[[https://docs.scala-lang.org/cheatsheets/][ Scala CheatSheet]]
+   -[[https://www.scala-exercises.org/][ Scala exercises (47 degree)]] 
+** Scala in Emacs
+
+**** Install Scala sbt
+
+#+begin_src shell
+brew install sbt
+#+end_src
+
+**** Install ensime http://ensime.org/build_tools/sbt/#sbt-version
+
+
+#+begin_src shell
+mkdir -p $HOME/.sbt/0.13/plugins
+mkdir -p $HOME/.sbt/1.0/plugins
+
+echo "addSbtPlugin(\"org.ensime\" % \"sbt-ensime\" % \"2.0.1\")" > ~/.sbt/1.0/plugins/plugins.sbt
+echo "addSbtPlugin(\"org.ensime\" % \"sbt-ensime\" % \"2.0.1\")" > ~/.sbt/0.13/plugins/plugins.sbt
+#+end_src
+
+finally execute ensimeConfig on the project
+
+#+begin_src shell
+sbt
+> ensimeConfig
+#+end_src
+
+Add the layer to the emacs file
+
+(scala :variables scala-auto-start-ensime t))
+
+
+**** QUOTE Install scalaStyle 
+
+
+#+begin_src shell
+brew install scalastyle 
+#+end_src
+     
+And add this lines inside the *dotspacemacs/user-config* on your emacs file (SPC + f + e + d)
+#+begin_src lisp
+(setq flycheck-scalastyle-jar
+      "/usr/local/Cellar/scalastyle/0.8.0/libexec/scalastyle_2.11-0.8.0-batch.jar")
+(setq flycheck-scalastylerc
+      "/usr/local/etc/scalastyle_config.xml")
+#+end_src
+
+#+begin_src scala
+val p = 2
+p
+#+end_src
+
+#+RESULTS:
+
+** Pass arguments to function (Value vs Name)
+
+   So in scala there are two ways of passing arguments to a function.....
+
+   1. Pass by Value
+   2. Pass by Name
+
+   The difference is subtle... when passing by *Value* the substitution of the values for the arguments
+   are done before the call to the function.
+
+   So in pass By Value:
+   
+   1. if we got a function: sum(a: Int, b: Int) and firstValue():Int = 2 and secondValue():Int = 3
+   2. When executing `sum(firstValue(), secondValue())`
+   3. the Arguments are evaluated before executing the function so the execution will be like:
+   4. sum(2, 3)
+   
+   On the other hand, in the pass by name: (be aware be added a "=>" into the parameters of the sum function
+   this is the way to indicate the pass by name)
+
+   1. if we got a function: sum(a: => Int, b: => Int) and firstValue():Int = 2 and secondValue():Int = 3
+   2. When executing `sum(firstValue(), secondValue())`
+   3. Instead of evaluating the values, and substituing the arguments with the values `sum(2,3)`, we substitute the 
+      body of the function and replace each argument reference with the argument
+   4. Consequences:
+      4.1 If a argument is not used during an execution, it's not evaluated at all
+      4.2 If a argument is used more than one time, it's evaluated each time
+
+#+BEGIN_SRC scala
+  def getP() = {
+    println("getP Executed")
+    1
+  }
+
+  def getQ() = {
+    println("getQ Executed")
+    2
+  }
+
+  def passByName(p: => Int, q: => Int) = {
+    p + 1
+    p + 1
+  }
+
+  def passByValue(p: Int, q: Int) = {
+    p + 1
+    p + 1
+  }
+
+
+  println("first we are going to pass by value")
+  passByValue(getP(), getQ())
+
+  println("second we are going to pass by name")
+  passByName(getP(), getQ())
+
+#+END_SRC 
+
+#+RESULTS:
+#+begin_example
+getP: ()Int
+getQ: ()Int
+passByName: (p: => Int, q: => Int)Int
+passByValue: (p: Int, q: Int)Int
+first we are going to pass by value
+getP Executed
+getQ Executed
+res3: Int = 2
+second we are going to pass by name
+getP Executed
+getP Executed
+res5: Int = 2
+#+end_example
+
+** TypeParameters in scala
+
+   Type Parameters works like in java here is some code of example of howto to use it
+   
+#+BEGIN_SRC scala
+    class Cons[T](val head: T, val tail: List[T])
+    def singleValue[T](elem: T) = new Cons[T](elem, null)
+
+  singleValue(1)
+  singleValue("HELLO")
+#+END_SRC
+
+#+RESULTS:
+: defined class Cons
+: singleValue: [T](elem: T)Cons[T]
+: res17: Cons[Int] = Cons@57ee15b3
+: res18: Cons[String] = Cons@34ae4fd9
+
+   T is the type parameter, meaning that we are generalizing the class to be used with any kind of type
+
+** Scala val in constructor
+
+   in scala, if some constructor argument has the keyword val before the name of the argument, 
+   it means that this argument will be also a field of the class. See the example below!
+
+#+BEGIN_SRC scala
+    class Cons1[T](val head: T, val tail: List[T])
+    class Cons2[T](_head: T, _tail: List[T]) {
+      val head = _head
+      val tail = _tail
+    }
+
+  val head1 = new Cons1(3, null).head
+  val head2 = new Cons2(3, null).head
+#+END_SRC
+
+#+RESULTS:
+: defined class Cons1
+: defined class Cons2
+: head1: Int = 3
+: head2: Int = 3
+
+** TODO Tail recursion
+** TODO Curring
+** Bounds
+
+   when using generics we can define some bounds... meaning we can:
+
+- <: say some S have to be a sub type of IntSet
+- >: say some S have to be a super type of IntSet
+
+  Subtype is like... class Dog extends Animal, then dog is a subtype of Animal
+
+#+BEGIN_SRC scala
+def assertAllPositive[S <: IntSet](r: S): S = ...
+#+END_SRC
+
+** Covariance
+   
+Liskov: if we have two types T and S, as T <: S for the liskov means that 
+that whatever you can do with the superType T, you should be able to apply
+to the subtype S.
+
+Covariance: if then we have List[T] and List[S], should List[S] to be a 
+subtype of List[T]????? if that is true, we say that List are covariant.
+
+in scala, Array are not covariant, but List are why??? because lists are 
+inmutable and Array are mutables
+
+#+BEGIN_SRC scala
+val a: Array[NonEmpty] = Array(new NonEmpty(1, Empty, Empty))
+val b: Array[IntSet] = a
+b(0) = Empty
+val s: NonEmpty = a(0)
+#+END_SRC
+
+it will ot compile the second line, since Array[NonEmpty] is not a 
+subtype of Array[IntSet] because there is no covariant, there is no type
+relation betwee Array[T] and Array[S] even if S <: T
+
+Scala allows you to define if a generic type is:
+
+  1. [+T] covariant
+  2. [-T] contravariant
+  3. [T] non-variant (they don't have any relation)
+
+** TODO Variance (week 4 lecture 4 optional)
+** Pattern Matching
+
+Pattern matching allow you to know which constructor was used when 
+on the initalization of the class, and with which arguments.
+
+to be able to use pattern matching we have to add the `case` modifier
+before the class defintion.
+
+Just by adding the case, you will get an object companion for each class
+with a nice factory method so you can call Number(2) instead, new Number(2)
+
+#+BEGIN_SRC scala
+  trait Expr
+
+  case class Number(n: Int) extends Expr
+  case class Sum(e1: Expr, e2: Expr) extends Expr
+
+Number(2)
+#+END_SRC   
+
+#+RESULTS:
+: defined trait Expr
+: defined class Number
+: defined class Sum
+: res18: Number = Number(2)
+
+now we can use pattern matching using the match keyword:
+
+#+BEGIN_SRC scala
+  def eval(e: Expr): Int = e match {
+    case Number(n) => n
+    case Sum(e1, e2) => eval(e1) + eval(e2)
+  }
+
+val e = Sum(Number(3), Number(3))
+eval(Sum(e, e))
+#+END_SRC
+
+#+RESULTS:
+: eval: (e: Expr)Int
+: e: Sum = Sum(Number(3),Number(3))
+: res20: Int = 12
+
+the matches can be:
+
+  1. constructors (the one from of the example)
+  2. variables
+  3. wildcard pattern _
+  4. constants (ex: 1, true etc...)
+
+** Lists 
+
+   diff between arrays vs lists:
+
+    1. lists are inmutable and arrays are not
+    2. lists are recursive and arrays are flat
+
+   all lists in scala are constructed from the empty list Nil, and the
+   construction operator x :: xs
+
+#+BEGIN_SRC scala
+    val fruits = List("apples", "oranges", "pears")
+    val num = List(1, 2, 3)
+    val fruits2 = "apples" :: "oranges" :: "pears" :: Nil
+
+  val h = fruits2.head
+  val t = fruits2.tail
+#+END_SRC
+
+#+RESULTS:
+: fruits: List[String] = List(apples, oranges, pears)
+: num: List[Int] = List(1, 2, 3)
+: fruits2: List[String] = List(apples, oranges, pears)
+: h: String = apples
+: t: List[String] = List(oranges, pears)
+
+  Also you can use lists in pattern matching with the match head :: tail.
+
+#+BEGIN_SRC scala
+  val l = List(7, 3, 9, 2)
+
+  def insert(x: Int, xs: List[Int]): List[Int] = xs match {
+    case Nil => List(x)
+    case y :: ys => if (x <= y) x :: xs else y :: insert(x, ys)
+  }
+
+  def isort(xs: List[Int]): List[Int] = xs match {
+    case Nil => Nil
+    case y :: ys => insert(y, isort(ys))
+  }
+
+  isort(l)
+
+#+END_SRC
+
+#+RESULTS:
+: l: List[Int] = List(7, 3, 9, 2)
+: insert: (x: Int, xs: List[Int])List[Int]
+: isort: (xs: List[Int])List[Int]
+: res34: List[Int] = List(2, 3, 7, 9)
+
+some useful functions in lists
+
+- xs.length
+- xs.last (last element or if list is empty an exception)
+- xs.init (list of all elements without the last)
+- xs take n (first n elements)
+- xs drop n (list without the first n elements)
+
+** Implicits 
+
+you can use the keyword **implicit** in any argument you use in a
+function and call the function without passing the parameter...
+the scala compiler is going to fill this variable with an instance...
+
+HOW?!?! well because you have somewhere some companion object of the 
+correct subtype that has the **implicit** keyword
+
+  1. marked as implicit
+  2. has a compatiple type
+  3. is visible to the function call (you could specify if you want)
+     
+and will throw an exception if multiple/none object is found
+** Seq, Range, Map
+
+*** Seq
+methods:
+- xs exists p: if for some element predicate is true
+- xs forall p: if for all elements p(element) is true
+- xs zip ys: combine two Seq in a single List[Pair]
+- xs flatMap
+
+#+BEGIN_SRC scala
+val p = List(1, 2, 3)
+val q = List(4, 5, 6)
+
+p zip q
+
+#+END_SRC
+
+#+RESULTS:
+: p: List[Int] = List(1, 2, 3)
+: q: List[Int] = List(4, 5, 6)
+: res3: List[(Int, Int)] = List((1,4), (2,5), (3,6))
+
+*** Range
+#+BEGIN_SRC scala
+    val r = 1 until 5 // 1, 2, 3, 4
+    val l = 1 to 5 // 1, 2, 3, 4, 5
+    val p = 1 to 10 by 3
+    val q = 6 to 1 by -2
+#+END_SRC
+
+#+RESULTS:
+: r: scala.collection.immutable.Range = Range 1 until 5
+: l: scala.collection.immutable.Range.Inclusive = Range 1 to 5
+: p: scala.collection.immutable.Range = Range 1 to 10 by 3
+: q: scala.collection.immutable.Range = inexact Range 6 to 1 by -2
+** Map
+   Key value store. They can be used like a function because they conform to Function1, so 
+   we can pass them to a map etc.....
+   
+   if the key is not found, and exception is throw... 
+
+   if we are not 100% sure if the value exists, use the get method and instead of 
+   reasing a exception... will get you a Option[K] type
+   
+#+BEGIN_SRC scala
+val capitalOfCountry = Map("US" -> "Washington")
+capitalOfCountry("US")
+capitalOfCountry get "Andorra"
+capitalOfCountry("Andorra")
+#+END_SRC
+
+#+RESULTS:
+: capitalOfCountry: scala.collection.immutable.Map[String,String] = Map(US -> Washington)
+: res9: String = Washington
+: res10: Option[String] = None
+: java.util.NoSuchElementException: key not found: Andorra
+:   at scala.collection.immutable.Map$Map1.apply(Map.scala:108)
+:   ... 53 elided
+
+** For-Expressio
+
+   `for (p <- persons if p.age > 20) yield p.name` is equivalent toList
+   `persons filter (p => p.age > 20) map (p => p.name)
+
+   for expressions can be translated to a combination of map, flatMap, filter
+** TODO Monad 

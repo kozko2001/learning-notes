@@ -1,0 +1,302 @@
+* DJANGO - Beach!
+
+** Install django
+
+   1. Create an environment
+   2. Activate it, you should see your shell changed
+      
+#+BEGIN_SRC shell
+  python3 -m venv ~/.virtualenvs/django-introduction
+  source ~/.virtualenvs/django-introduction/bin/activate
+
+  pip freeze > requirements.txt
+
+  pip install -r requirements.txt
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC python
+    import sys
+    import django
+
+    python_version = "%i %i" % (sys.version_info.major, sys.version_info.minor)
+    django_version = django.__path__
+
+    return (python_version, django_version)
+#+END_SRC
+
+#+RESULTS:
+| 3 6 | (/usr/local/Cellar/python3/3.6.3/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/django) |
+
+** Part1 - [[https://docs.djangoproject.com/en/1.11/intro/tutorial01/][Django tutorial part 1]]
+
+*** Init the project
+    
+So this will create a structure of the site, the cli tool is installed with the previous steps
+of installing the django using pip
+
+#+BEGIN_SRC shell :dir ~/tmp
+  rm mysite
+  python3 /usr/local/bin/django-admin startproject mysite
+
+  find $HOME/tmp/mysite
+#+END_SRC
+
+#+RESULTS:
+| /Users/jcoscolla/tmp/mysite                                            |
+| /Users/jcoscolla/tmp/mysite/mysite                                     |
+| /Users/jcoscolla/tmp/mysite/mysite/__init__.py                         |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__                         |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__/settings.cpython-36.pyc |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__/__init__.cpython-36.pyc |
+| /Users/jcoscolla/tmp/mysite/mysite/settings.py                         |
+| /Users/jcoscolla/tmp/mysite/mysite/urls.py                             |
+| /Users/jcoscolla/tmp/mysite/mysite/wsgi.py                             |
+| /Users/jcoscolla/tmp/mysite/polls                                      |
+| /Users/jcoscolla/tmp/mysite/polls/migrations                           |
+| /Users/jcoscolla/tmp/mysite/polls/migrations/__init__.py               |
+| /Users/jcoscolla/tmp/mysite/polls/models.py                            |
+| /Users/jcoscolla/tmp/mysite/polls/__init__.py                          |
+| /Users/jcoscolla/tmp/mysite/polls/apps.py                              |
+| /Users/jcoscolla/tmp/mysite/polls/admin.py                             |
+| /Users/jcoscolla/tmp/mysite/polls/tests.py                             |
+| /Users/jcoscolla/tmp/mysite/polls/views.py                             |
+| /Users/jcoscolla/tmp/mysite/manage.py                                  |
+
+this is the files that are created...  
+
+ - manage.py: is tool for make some of the recurrent tasks (like apply migrations ...)
+ - urls.py: ????
+ - settings.py: defines which middleware are used in this site
+
+We can start the server with, and open https://localhost:8000
+
+#+BEGIN_SRC shell :dir ~/tmp/mysite
+  cd $HOME/tmp/mysite/
+  python3 manage.py runserver
+#+END_SRC
+
+
+
+** Create a new application inside the site
+
+There is also a command to make the scalfolding (default files) for a new project
+
+#+BEGIN_SRC shell :dir ~/tmp/mysite
+  python3 manage.py startapp polls
+  find $HOME/tmp/mysite
+#+END_SRC
+
+#+RESULTS:
+| /Users/jcoscolla/tmp/mysite                                            |
+| /Users/jcoscolla/tmp/mysite/mysite                                     |
+| /Users/jcoscolla/tmp/mysite/mysite/__init__.py                         |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__                         |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__/settings.cpython-36.pyc |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__/wsgi.cpython-36.pyc     |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__/__init__.cpython-36.pyc |
+| /Users/jcoscolla/tmp/mysite/mysite/__pycache__/urls.cpython-36.pyc     |
+| /Users/jcoscolla/tmp/mysite/mysite/settings.py                         |
+| /Users/jcoscolla/tmp/mysite/mysite/urls.py                             |
+| /Users/jcoscolla/tmp/mysite/mysite/wsgi.py                             |
+| /Users/jcoscolla/tmp/mysite/db.sqlite3                                 |
+| /Users/jcoscolla/tmp/mysite/polls                                      |
+| /Users/jcoscolla/tmp/mysite/polls/migrations                           |
+| /Users/jcoscolla/tmp/mysite/polls/migrations/__init__.py               |
+| /Users/jcoscolla/tmp/mysite/polls/models.py                            |
+| /Users/jcoscolla/tmp/mysite/polls/__init__.py                          |
+| /Users/jcoscolla/tmp/mysite/polls/__pycache__                          |
+| /Users/jcoscolla/tmp/mysite/polls/__pycache__/__init__.cpython-36.pyc  |
+| /Users/jcoscolla/tmp/mysite/polls/apps.py                              |
+| /Users/jcoscolla/tmp/mysite/polls/admin.py                             |
+| /Users/jcoscolla/tmp/mysite/polls/tests.py                             |
+| /Users/jcoscolla/tmp/mysite/polls/views.py                             |
+| /Users/jcoscolla/tmp/mysite/manage.py                                  |
+
+*** TODO why is need each one file???
+
+
+** Let's make some super simple view (text only) 
+
+*** Create the view
+
+
+    create a method in the polls/views.py
+
+#+BEGIN_SRC python3
+from django.http import HttpResponse
+
+
+def index(request):
+    return HttpResponse("Hello, world. You're at the polls index.")
+
+#+END_SRC
+
+*** Route some url to this view
+
+    in the polls/urls.py 
+
+#+BEGIN_SRC python3
+from django.conf.urls import url
+
+from . import views
+
+urlpatterns = [
+    url(r'^$', views.index, name='index'),
+]
+
+#+END_SRC
+
+Meaning when that match the regex ^$, then execute the views.index that is the 
+previous function we defined early.
+
+so will execute the views.index function, if in the regex we did capture groups,
+this will be passed as parameters like
+
+#+BEGIN_SRC python3
+    def index(request, id):
+      pass
+
+    url(r'^detail/([0-9])$', views.index, name='index'),
+#+END_SRC
+
+the index function will be called with two parameters, the request, and some id...
+
+Also you can use named captured groups like:
+
+#+BEGIN_SRC python3
+    def index(request, some_id):
+      pass
+    url(r'^detail/(?P<some_id>[0-9])$', views.index, name='index'),
+#+END_SRC
+
+
+*** Link the app with the site
+
+Now we have to modify the `mysite/urls.py` to make the poll.urls available 
+for the site.
+
+#+BEGIN_SRC python
+  from django.conf.urls import include, url
+  from django.contrib import admin
+
+  urlpatterns = [
+      url(r'^polls/', include('polls.urls')),
+      url(r'^admin/', admin.site.urls),
+  ]
+#+END_SRC
+
+what this code is making, whenever something that start by "polls/" will send
+the rest of the url to the polls application to be handled from there.
+
+This way we can have modular "apps" on the same site that can be plug to 
+any other site.
+
+** Create a model (part 2)
+
+*** Database engine
+
+on django you can use multiple database engines, and t oconfigure which one to use we have 
+to modify the mysite/settings.py, by default everything is configured to  use sqlite3 so you
+don't need to use any external DB engine.
+
+the command to fill the database is 
+#+BEGIN_SRC shell :dir ~/tmp/mysite
+  python3 manage.py migrate
+#+END_SRC
+
+#+RESULTS:
+| Operations | to                                               | perform:    |        |       |               |          |
+| Apply      | all                                              | migrations: | admin, | auth, | contenttypes, | sessions |
+| Running    | migrations:                                      |             |        |       |               |          |
+| Applying   | contenttypes.0001_initial...                     | OK          |        |       |               |          |
+| Applying   | auth.0001_initial...                             | OK          |        |       |               |          |
+| Applying   | admin.0001_initial...                            | OK          |        |       |               |          |
+| Applying   | admin.0002_logentry_remove_auto_add...           | OK          |        |       |               |          |
+| Applying   | contenttypes.0002_remove_content_type_name...    | OK          |        |       |               |          |
+| Applying   | auth.0002_alter_permission_name_max_length...    | OK          |        |       |               |          |
+| Applying   | auth.0003_alter_user_email_max_length...         | OK          |        |       |               |          |
+| Applying   | auth.0004_alter_user_username_opts...            | OK          |        |       |               |          |
+| Applying   | auth.0005_alter_user_last_login_null...          | OK          |        |       |               |          |
+| Applying   | auth.0006_require_contenttypes_0002...           | OK          |        |       |               |          |
+| Applying   | auth.0007_alter_validators_add_error_messages... | OK          |        |       |               |          |
+| Applying   | auth.0008_alter_user_username_max_length...      | OK          |        |       |               |          |
+| Applying   | sessions.0001_initial...                         | OK          |        |       |               |          |
+
+
+*** Create some model for the poll app
+    
+
+#+BEGIN_SRC python
+from django.db import models
+
+
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice_text = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+
+#+END_SRC
+
+Here we see, first the Question model... with two fields, question_text and pubDate, also
+we see the Choice, which have a FK of Question
+
+now we created this model, but is not connected to the ful django site. to do so, we have to link
+it in the mysites/settings.py
+
+and to the INSTALLED_APPS array, add the "polls.apps.PollsConfig"
+
+once done that, we can:
+
+1. make the migration file
+
+#+BEGIN_SRC shell :dir ~/tmp/mysite
+  python3 manage.py makemigrations
+#+END_SRC
+
+#+RESULTS:
+|                       Migrations | for    | 'polls': |          |    |        |
+| polls/migrations/0001_initial.py |        |          |          |    |        |
+|                                0 | Create | model    | Choice   |    |        |
+|                                0 | Create | model    | Question |    |        |
+|                                0 | Add    | field    | question | to | choice |
+
+2. apply the migration to our database
+#+BEGIN_SRC shell :dir ~/tmp/mysite
+  python3 manage.py migrate
+#+END_SRC
+
+#+RESULTS:
+| Operations | to                    | perform:    |        |       |               |        |          |
+| Apply      | all                   | migrations: | admin, | auth, | contenttypes, | polls, | sessions |
+| Running    | migrations:           |             |        |       |               |        |          |
+| Applying   | polls.0001_initial... | OK          |        |       |               |        |          |
+
+
+** API for querying and adding to the DB
+
+....
+
+** Admin 
+
+#+BEGIN_SRC shell
+  python manage.py createsuperuser
+#+END_SRC
+
+
+#+BEGIN_SRC python :dir ~/tmp/mysite :name polls/admin.py
+from django.contrib import admin
+
+from .models import Question
+
+admin.site.register(Question)
+
+#+END_SRC
+
+#+RESULTS:
