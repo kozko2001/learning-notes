@@ -1,0 +1,92 @@
+* Crypto Week 1
+
+** Random Variables
+
+Note: being *A* a random variable and *U* and __unifor__ random variable
+
+C = A xor U, C is a uniform random variable. which mean that the probability to
+get a value in the space of C is 1/|C|
+
+** PRG (Pseudo Random Numbers:
+
+Pseudo Random numbers are functions that have a *SEED* from an Space
+(i.e {0,1}^20) and give you a values from other space S which is much much
+bigger than the *seed* space.
+
+PRG are **NOT** random, but appear random, but if you give the same seed the
+and ask for numbers, it will systematically return the same sequence
+
+
+** Stream Cipers 3: Real World
+
+*** Moder steam ciphers (eStream 2008)
+
+Salsa20: {0, 1}^128 x {0,1}^64 --> {0, 1}^n                (max n = 2^73)
+                  ^          ^
+                  `---seed   |
+                             `---- nonce (r)
+
+Salsa20(k; r) := H(k, (r, 0)) || H(k, (r, 1)) || ...
+
+
+** Steam Ciphers 4: What is a secure cipher?
+
+*** Statistical test
+   We want PRG to be "indistinguisable" from Uniform distribution
+
+   statistical test on {0, 1}^n A is function A(x) that outputs 0 or 1, 1 if
+   looks random.
+
+   Examples:
+
+   - The numbers of 0 and 1 in the stream should be roughly the same
+     A(x) = 1    iff  |count(0 in x) - count(1 in x)| < 10 * sqrt(n)
+
+   - The numbers of two consecutives zeros is roughly 1/4
+
+*** Advantage
+   Idea -> how likely is the Statistical test say that the PRN is random, vs
+   how likely the statistical test is going to say that a really random sequence
+   is random
+
+   if advantage is close to 1, means that the statistical test behave
+   differently, between PRG and randomnes, and we can say the statistical test
+   breaks the PRN.
+
+   So if advantage is close to 0, means it can not difference between PRN or RAN
+
+*** Secure PRGs
+    if for all efficient statistical test, the advantage is neglible
+
+*** A secure PRG is unpredicatable
+    if a PRG is unpredictable, then is secure. Meaning if given n bytes from PRN
+    is not possible to predict next bit.
+
+*** What is a secure cipher?
+    Cipher text should not leak ANY information about the plain text
+
+***** Shannon's pefect secrecy
+      Let (E, D) be a cipher over (K, M, C)
+
+      (E, D) has perfect secrecy if for all m0, and m1 \E to M
+      { E(k, m0) } = { E(k, m1) }  where k <- K
+
+      this law needs the key to be equal to the plain text, which is hard
+
+      So let's weak the definition, instead of eq, be says it's equal in
+      polinomial time, and instead for all m0, m1. for all m0 and m1 that
+      the attacker can generate
+
+*** Semantic Security
+    We are going to creacte two experiments Exp1 and Exp2, both very similar...
+
+    The "attacher" will send two messages to the subject, and depending on the
+    which experiment we are, will return the cipher of  m0 or the cipher of m1
+    (in exp1 cipher of m0 and exp2 -> cipher(m1))
+
+    Now the attacker has to figure out if the cipher that receive is from m0 or
+    m1.
+
+    If the attacker which cipher is with an non neglible error, we say that the
+    attacker broke the cipher
+
