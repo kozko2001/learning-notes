@@ -1,0 +1,48 @@
+* Week3 - MAC (Message authentication codes)
+
+** Overview
+
+   On week2 we did see how to build secrecy in the message, but this is not
+   enough to be secure. now we also want to have integrity
+
+   The attackers can not see what there is in the cipher but can change it in
+   a ways that would made the system to be compromised.
+
+   Example: Do a man in the middle, and tamper the packet to send it to another
+   port, or maybe to another service
+
+
+   For that there is MAC, MAC generates a "tag" for a message in a way that if
+   the message is tampered, the server can verify it.
+
+   There are two function S(Sign) and V(Verify):
+
+   - V(k, S(k, m)) == true
+
+   These functions can not be simply a Hash function, because the attacker could
+   just calculate the new hash, that why we still need a secret key shared
+   between the two actors.
+
+
+   We can define S as a {0,1}^n --> {0,1}^128, where m >>> 128
+
+   This means that different m1 and m2, could have the same tag, because we are
+   going from a super big space of all possible messages to limited by 128 bits
+
+   The key thing here is, to be sure that the attacker can not find colisions
+   in an efficient way.
+
+** Generic Birthday Attack
+
+   For all MAC algorithms, you can always do a Birthday attack and find a
+   colision in O(2^(n/2)) hashes
+
+   So we are going to say that a MAC algorithm is secure if the changes to
+   find/forge a colision for any message are bounded by this.
+
+
+** HMAC
+
+We can generate a MAC from a hash function:
+
+[[./week3-hmac.png]]

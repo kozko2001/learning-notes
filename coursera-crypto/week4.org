@@ -1,0 +1,19 @@
+* Week 4
+
+** Overview
+
+On week 2 we did see how to build secrecy with the ciphers like AES, and on week
+3 we did see how to build integrity.
+
+Turns out, that for having secure communications we need both
+
+
+without secrecy, everybody could know what is the plaint text,
+without integrity, attackers could tamper the ciphers and try to fool services
+to use non secure functionalities.
+
+
+
+
+--- DISCLAIMER: I did not end this week...
+
